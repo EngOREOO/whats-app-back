@@ -93,7 +93,7 @@ export function parseCSV(csvContent: string, hasHeaders: boolean = true): CSVRow
 
   return dataLines
     .filter(line => line.trim() !== '')
-    .map((line, index) => {
+    .map((line) => {
       const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
       const row: CSVRow = {};
       

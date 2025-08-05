@@ -86,7 +86,7 @@ export default function PhoneNumberUpload({
         }
 
         onNumbersExtracted(numbers, file);
-      } catch (err) {
+      } catch {
         setError("Failed to parse phone numbers from file");
       } finally {
         setLoading(false);
@@ -136,7 +136,7 @@ export default function PhoneNumberUpload({
   );
 
   const removeFile = useCallback(() => {
-    onNumbersExtracted([], null as any);
+    onNumbersExtracted([], null!);
     setError("");
   }, [onNumbersExtracted]);
 

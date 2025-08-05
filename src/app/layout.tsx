@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -41,34 +42,34 @@ export default function RootLayout({
 
               {/* Desktop Navigation */}
               <div className="hidden md:flex md:items-center md:space-x-1">
-                <a
+                <Link
                   href="/"
                   className="px-4 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-lg transition-all duration-200 flex items-center gap-2"
                 >
                   <span>🏠</span>
                   Dashboard
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/setup"
                   className="px-4 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-lg transition-all duration-200 flex items-center gap-2"
                 >
                   <span>➕</span>
                   Setup
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/send"
                   className="px-4 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-lg transition-all duration-200 flex items-center gap-2"
                 >
                   <span>💬</span>
                   Send
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/status"
                   className="px-4 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-lg transition-all duration-200 flex items-center gap-2"
                 >
                   <span>📊</span>
                   Status
-                </a>
+                </Link>
                 <a
                   href="http://localhost:3001/api-docs"
                   target="_blank"
@@ -99,34 +100,34 @@ export default function RootLayout({
           {/* Mobile menu */}
           <div className="md:hidden" id="mobile-menu">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-github-border-muted bg-github-canvas-inset/50 backdrop-blur-sm">
-              <a
+              <Link
                 href="/"
                 className="block px-3 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-md transition-all duration-200 flex items-center gap-2"
               >
                 <span>🏠</span>
                 Dashboard
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/setup"
                 className="block px-3 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-md transition-all duration-200 flex items-center gap-2"
               >
                 <span>➕</span>
                 Setup
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/send"
                 className="block px-3 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-md transition-all duration-200 flex items-center gap-2"
               >
                 <span>💬</span>
                 Send
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/status"
                 className="block px-3 py-2 text-sm font-medium text-github-fg-default hover:text-[#1f6feb] hover:bg-github-canvas-inset rounded-md transition-all duration-200 flex items-center gap-2"
               >
                 <span>📊</span>
                 Status
-              </a>
+              </Link>
               <a
                 href="http://localhost:3001/api-docs"
                 target="_blank"
@@ -167,24 +168,24 @@ export default function RootLayout({
                   Quick Links
                 </h3>
                 <div className="space-y-2">
-                  <a
+                  <Link
                     href="/setup"
                     className="block text-sm text-github-fg-muted hover:text-[#1f6feb] transition-colors duration-200"
                   >
                     Create Session
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="/send"
                     className="block text-sm text-github-fg-muted hover:text-[#1f6feb] transition-colors duration-200"
                   >
                     Send Messages
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="/status"
                     className="block text-sm text-github-fg-muted hover:text-[#1f6feb] transition-colors duration-200"
                   >
                     Monitor Sessions
-                  </a>
+                  </Link>
                   <a
                     href="http://localhost:3001/api-docs"
                     target="_blank"

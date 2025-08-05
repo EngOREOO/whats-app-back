@@ -16,7 +16,7 @@ import {
   Placeholder,
   whatsappApi 
 } from "@/lib/api";
-import { createPersonalizedMessages, createStudentDataObjects, validatePlaceholders, renderMessage } from "@/lib/utils";
+import { createStudentDataObjects, validatePlaceholders, renderMessage } from "@/lib/utils";
 import { useState } from "react";
 
 interface MessageFormProps {
@@ -285,7 +285,7 @@ export default function MessageForm({
       const previewData = createStudentDataObjects(studentData.slice(0, 3));
       
       // Create personalized messages for preview
-      return previewData.map((data, index) => ({
+      return previewData.map((data) => ({
         number: data.Phone,
         message: renderMessage(bulkData.message, data)
       }));

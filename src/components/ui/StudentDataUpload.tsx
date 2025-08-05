@@ -90,7 +90,7 @@ export default function StudentDataUpload({
 
         setPreviewData(students);
         setShowPreview(true);
-      } catch (err) {
+      } catch {
         setError("Failed to parse student data from file");
       } finally {
         setLoading(false);
@@ -156,7 +156,7 @@ export default function StudentDataUpload({
   );
 
   const removeFile = useCallback(() => {
-    onDataExtracted([], null as any);
+    onDataExtracted([], null!);
     setError("");
     setPreviewData([]);
     setShowPreview(false);

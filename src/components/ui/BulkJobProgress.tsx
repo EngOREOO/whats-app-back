@@ -1,7 +1,7 @@
 "use client";
 
 import { BulkJob, whatsappApi } from "@/lib/api";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface BulkJobProgressProps {
   jobId: string;
@@ -15,7 +15,7 @@ export default function BulkJobProgress({ jobId, onJobComplete }: BulkJobProgres
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
   const [hasNotifiedCompletion, setHasNotifiedCompletion] = useState(false);
 
-  const fetchJobStatus = async () => {
+  const fetchJobStatus = useCallback(async () => {
     try {
       const response = await whatsappApi.getBulkJob(jobId);
       if (response.success && response.data) {
@@ -41,7 +41,7 @@ export default function BulkJobProgress({ jobId, onJobComplete }: BulkJobProgres
     } finally {
       setLoading(false);
     }
-  };
+  }, [jobId, pollingInterval, hasNotifiedCompletion, onJobComplete]);
 
   useEffect(() => {
     fetchJobStatus();
@@ -55,7 +55,7 @@ export default function BulkJobProgress({ jobId, onJobComplete }: BulkJobProgres
         clearInterval(interval);
       }
     };
-  }, [jobId]);
+  }, [jobId, fetchJobStatus]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
