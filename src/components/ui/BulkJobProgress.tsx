@@ -1,7 +1,7 @@
 "use client";
 
 import { BulkJob, whatsappApi } from "@/lib/api";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface BulkJobProgressProps {
   jobId: string;
@@ -15,35 +15,35 @@ export default function BulkJobProgress({ jobId, onJobComplete }: BulkJobProgres
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
   const [hasNotifiedCompletion, setHasNotifiedCompletion] = useState(false);
 
-  const fetchJobStatus = useCallback(async () => {
-    try {
-      const response = await whatsappApi.getBulkJob(jobId);
-      if (response.success && response.data) {
-        setJob(response.data);
-        
-        // Stop polling if job is completed or failed
-        if (response.data.status === "completed" || response.data.status === "failed") {
-          if (pollingInterval) {
-            clearInterval(pollingInterval);
-            setPollingInterval(null);
-          }
-          // Only notify completion once
-          if (!hasNotifiedCompletion) {
-            setHasNotifiedCompletion(true);
-            onJobComplete?.(response.data);
-          }
-        }
-      } else {
-        setError(response.error || "Failed to fetch job status");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch job status");
-    } finally {
-      setLoading(false);
-    }
-  }, [jobId, pollingInterval, hasNotifiedCompletion, onJobComplete]);
-
   useEffect(() => {
+    const fetchJobStatus = async () => {
+      try {
+        const response = await whatsappApi.getBulkJob(jobId);
+        if (response.success && response.data) {
+          setJob(response.data);
+          
+          // Stop polling if job is completed or failed
+          if (response.data.status === "completed" || response.data.status === "failed") {
+            if (pollingInterval) {
+              clearInterval(pollingInterval);
+              setPollingInterval(null);
+            }
+            // Only notify completion once
+            if (!hasNotifiedCompletion) {
+              setHasNotifiedCompletion(true);
+              onJobComplete?.(response.data);
+            }
+          }
+        } else {
+          setError(response.error || "Failed to fetch job status");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch job status");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchJobStatus();
     
     // Start polling every 2 seconds
@@ -55,7 +55,7 @@ export default function BulkJobProgress({ jobId, onJobComplete }: BulkJobProgres
         clearInterval(interval);
       }
     };
-  }, [jobId, fetchJobStatus]);
+  }, [jobId, pollingInterval, hasNotifiedCompletion, onJobComplete]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

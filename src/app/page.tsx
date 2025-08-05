@@ -12,10 +12,6 @@ import { useCallback, useEffect, useState } from "react";
 
 
 
-
-
-
-
 export default function Dashboard() {
   const [sessions, setSessions] = useState<WhatsAppSession[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,6 +67,8 @@ export default function Dashboard() {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+
 
   const getSessionStats = () => {
     const total = sessions.length;

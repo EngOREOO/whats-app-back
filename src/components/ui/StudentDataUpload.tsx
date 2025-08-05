@@ -156,7 +156,7 @@ export default function StudentDataUpload({
   );
 
   const removeFile = useCallback(() => {
-    onDataExtracted([], null!);
+    onDataExtracted([], null as unknown as File);
     setError("");
     setPreviewData([]);
     setShowPreview(false);

@@ -136,7 +136,7 @@ export default function PhoneNumberUpload({
   );
 
   const removeFile = useCallback(() => {
-    onNumbersExtracted([], null!);
+    onNumbersExtracted([], null as unknown as File);
     setError("");
   }, [onNumbersExtracted]);
 

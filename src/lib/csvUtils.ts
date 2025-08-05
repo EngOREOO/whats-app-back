@@ -24,11 +24,11 @@ export interface ProcessedMessage {
 
 /**
  * Extracts placeholder keys from a message template
- * @param template - The message template with placeholders like {{Name}}, {{Student Number}}
+ * @param template - The message template with placeholders like {{Name}}, {{Code}}
  * @returns Array of placeholder keys (without {{}})
  */
 export function extractPlaceholders(template: string): string[] {
-  const placeholderRegex = /{{\s*([^}]+?)\s*}}/g;
+  const placeholderRegex = /{{(.*?)}}/g;
   const placeholders: string[] = [];
   let match;
 
@@ -54,7 +54,7 @@ export function renderMessage(
   data: CSVRow, 
   mapping?: PlaceholderMapping
 ): string {
-  return template.replace(/{{\s*([^}]+?)\s*}}/g, (match, key) => {
+  return template.replace(/{{(.*?)}}/g, (match, key) => {
     const trimmedKey = key.trim();
     
     // Use mapping if provided, otherwise use the key directly

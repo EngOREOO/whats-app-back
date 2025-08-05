@@ -8,9 +8,9 @@ import StatCard from "@/components/ui/StatCard";
 import { whatsappApi, WhatsAppSession } from "@/lib/api";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-export default function SendPage() {
+function SendPageContent() {
   const [sessions, setSessions] = useState<WhatsAppSession[]>([]);
   const [selectedSession, setSelectedSession] =
     useState<WhatsAppSession | null>(null);
@@ -388,5 +388,13 @@ export default function SendPage() {
         sessions={readySessions}
       />
     </div>
+  );
+}
+
+export default function SendPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SendPageContent />
+    </Suspense>
   );
 }
