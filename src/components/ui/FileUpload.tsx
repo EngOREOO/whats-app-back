@@ -20,15 +20,15 @@ export default function FileUpload({
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string>("");
 
-  const validateFile = useCallback((file: File): string | null => {
-    if (file.size > maxSize * 1024 * 1024) {
-      return `File size must be less than ${maxSize}MB`;
-    }
-    return null;
-  }, [maxSize]);
-
   const handleFileSelect = useCallback(
     (file: File) => {
+      const validateFile = (file: File): string | null => {
+        if (file.size > maxSize * 1024 * 1024) {
+          return `File size must be less than ${maxSize}MB`;
+        }
+        return null;
+      };
+
       const validationError = validateFile(file);
       if (validationError) {
         setError(validationError);
@@ -37,7 +37,7 @@ export default function FileUpload({
       setError("");
       onFileSelect(file);
     },
-    [validateFile, onFileSelect]
+    [onFileSelect, maxSize]
   );
 
   const handleDragOver = useCallback(

@@ -393,7 +393,14 @@ function SendPageContent() {
 
 export default function SendPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-github-canvas flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#1f6feb] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-github-fg-muted">Loading send page...</p>
+        </div>
+      </div>
+    }>
       <SendPageContent />
     </Suspense>
   );

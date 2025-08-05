@@ -168,24 +168,24 @@ export default function RootLayout({
                   Quick Links
                 </h3>
                 <div className="space-y-2">
-                  <Link
+                  <a
                     href="/setup"
                     className="block text-sm text-github-fg-muted hover:text-[#1f6feb] transition-colors duration-200"
                   >
                     Create Session
-                  </Link>
-                  <Link
+                  </a>
+                  <a
                     href="/send"
                     className="block text-sm text-github-fg-muted hover:text-[#1f6feb] transition-colors duration-200"
                   >
                     Send Messages
-                  </Link>
-                  <Link
+                  </a>
+                  <a
                     href="/status"
                     className="block text-sm text-github-fg-muted hover:text-[#1f6feb] transition-colors duration-200"
                   >
                     Monitor Sessions
-                  </Link>
+                  </a>
                   <a
                     href="http://localhost:3001/api-docs"
                     target="_blank"
