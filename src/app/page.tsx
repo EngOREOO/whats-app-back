@@ -267,7 +267,7 @@ export default function Dashboard() {
 
               {/* API Documentation Card */}
               <a
-                href="http://localhost:3001/api-docs"
+                href="https://wh-front.codiaumtech.com/api-docs"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group block"

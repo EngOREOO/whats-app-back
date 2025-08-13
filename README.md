@@ -94,7 +94,7 @@ A modern, responsive React dashboard for managing WhatsApp sessions and sending 
 Create a `.env.local` file in the root directory:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
+NEXT_PUBLIC_API_URL=https://wh-front.codiaumtech.com/api
 ```
 
 ## API Integration

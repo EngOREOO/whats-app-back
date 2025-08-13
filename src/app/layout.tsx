@@ -86,7 +86,7 @@ export default function RootLayout({
                   Status
                 </a>
                 <a
-                  href="http://localhost:3001/api-docs"
+                  href="https://wh-front.codiaumtech.com/api-docs"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-4 py-2 text-sm font-medium text-github-fg-muted hover:text-github-fg-default hover:bg-github-canvas-inset rounded-lg transition-all duration-200 flex items-center gap-2"
@@ -165,7 +165,7 @@ export default function RootLayout({
                 Status
               </a>
               <a
-                href="http://localhost:3001/api-docs"
+                href="https://wh-front.codiaumtech.com/api-docs"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block px-3 py-2 text-sm font-medium text-github-fg-muted hover:text-github-fg-default hover:bg-github-canvas-inset rounded-md transition-all duration-200 flex items-center gap-2"
@@ -223,7 +223,7 @@ export default function RootLayout({
                     Monitor Sessions
                   </a>
                   <a
-                    href="http://localhost:3001/api-docs"
+                    href="https://wh-front.codiaumtech.com/api-docs"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block text-sm text-github-fg-muted hover:text-[#1f6feb] transition-colors duration-200"
