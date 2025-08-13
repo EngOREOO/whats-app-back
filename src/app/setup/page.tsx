@@ -2,17 +2,21 @@
 
 import ConnectionStatus from "@/components/ConnectionStatus";
 import QrCodeViewer from "@/components/QrCodeViewer";
+import { ToastContainer } from "@/components/ui/Toast";
+import { useToast } from "@/hooks/useToast";
 import { whatsappApi, WhatsAppSession } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 
-export default function SetupPage() {
+function SetupPageContent() {
   const [session, setSession] = useState<WhatsAppSession | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [customSessionId, setCustomSessionId] = useState<string>("");
   const [polling, setPolling] = useState(false);
+  const [retryTimeout, setRetryTimeout] = useState<NodeJS.Timeout | null>(null);
   const router = useRouter();
+  const toast = useToast();
 
   // Poll session status when session is created
   useEffect(() => {
@@ -46,38 +50,63 @@ export default function SetupPage() {
     }
   }, [session, polling, router]);
 
-  const createSessionWithBackoff = async (sessionId?: string) => {
-    const first = await whatsappApi.createSession(sessionId);
-    if (first.ok) return first;
-    if (!first.ok && first.retryable) {
-      const delay = first.retryAfter ? parseInt(first.retryAfter, 10) * 1000 : 8000;
-      await new Promise(r => setTimeout(r, delay));
-      return await whatsappApi.createSession(sessionId);
-    }
-    return first;
-  };
-
   const handleCreateSession = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await createSessionWithBackoff(customSessionId || undefined);
+      // Clear any existing retry timeout
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+        setRetryTimeout(null);
+      }
+
+      const response = await whatsappApi.createSession(customSessionId || undefined);
 
       if (response.ok && response.sessionData) {
+        // Success - continue normal flow
         setSession(response.sessionData);
         setPolling(true);
+        toast.success("Session created successfully", "You can now scan the QR code");
       } else if (response.retryable) {
-        setError('Preparing browser on server… please try again shortly.');
+        // 503 with retryable=true - show toast and schedule retry
+        toast.warning("Service temporarily unavailable. Retrying...", "Please wait while we prepare the browser");
+        
+        const retryDelay = response.retryAfter 
+          ? parseInt(response.retryAfter, 10) * 1000 
+          : 30000; // Default to 30 seconds
+        
+        console.log(`⏰ Scheduling retry in ${retryDelay}ms`);
+        
+        const timeoutId = setTimeout(async () => {
+          console.log("🔄 Executing scheduled retry");
+          setRetryTimeout(null);
+          await handleCreateSession(); // Retry once
+        }, retryDelay);
+        
+        setRetryTimeout(timeoutId);
       } else {
+        // 500 with retryable=false or other errors - show error toast, no retry
+        toast.error("Failed to initialize WhatsApp session", response.message || "Please try again later");
         setError(response.message || "Failed to create session");
       }
     } catch (err) {
+      console.log("❌ Unexpected error during session creation:", err);
+      toast.error("Network error", "Please check your connection and try again");
       setError(err instanceof Error ? err.message : "Failed to create session");
     } finally {
       setLoading(false);
     }
   };
+
+  // Cleanup retry timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+      }
+    };
+  }, [retryTimeout]);
 
   const handleRefreshQR = async () => {
     if (!session) return;
@@ -386,6 +415,19 @@ export default function SetupPage() {
           </div>
         )}
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
     </div>
+  );
+}
+
+export default function SetupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-github-canvas flex items-center justify-center">
+      <div className="text-github-fg-muted">Loading...</div>
+    </div>}>
+      <SetupPageContent />
+    </Suspense>
   );
 }

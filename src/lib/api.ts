@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://wh-front.codiaumtech.com/api";
+  process.env.NODE_ENV === "production" 
+    ? "https://api.codiaumtech.com/api"
+    : process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -46,22 +48,68 @@ export const whatsappApi = {
       const response = await api.post("/sessions", { sessionId });
       const body = response.data || {};
 
+      // Debug logging
+      console.log(`Session creation response - Status: ${response.status}, Retryable: ${body?.retryable}, Retry-After: ${response.headers['retry-after']}`);
+
       if (response.status === 201) {
+        console.log("✅ Session created successfully");
         return { ok: true, sessionData: body.data || { id: body.sessionId || sessionId || 'default', status: 'initializing' } };
       }
-      if (response.status === 503 && body?.retryable) {
-        return { ok: false, retryable: true, message: body?.message || 'Service busy', retryAfter: response.headers['retry-after'] };
+      
+      if (response.status === 503 && body?.retryable === true) {
+        console.log("⚠️ Service temporarily unavailable, retryable");
+        return { 
+          ok: false, 
+          retryable: true, 
+          message: 'Service temporarily unavailable. Retrying...', 
+          retryAfter: response.headers['retry-after'] 
+        };
       }
+      
+      if (response.status === 500 && body?.retryable === false) {
+        console.log("❌ Failed to initialize WhatsApp session, not retryable");
+        return { 
+          ok: false, 
+          retryable: false, 
+          message: 'Failed to initialize WhatsApp session. Please try again later.' 
+        };
+      }
+      
+      console.log(`❌ Unexpected response - Status: ${response.status}, Retryable: ${body?.retryable}`);
       return { ok: false, retryable: false, message: body?.message || `HTTP ${response.status}` };
     } catch (error: any) {
       // Handle axios errors
       if (error.response) {
         const body = error.response.data || {};
-        if (error.response.status === 503 && body?.retryable) {
-          return { ok: false, retryable: true, message: body?.message || 'Service busy', retryAfter: error.response.headers['retry-after'] };
+        const status = error.response.status;
+        const retryAfter = error.response.headers['retry-after'];
+        
+        // Debug logging
+        console.log(`Session creation error - Status: ${status}, Retryable: ${body?.retryable}, Retry-After: ${retryAfter}`);
+        
+        if (status === 503 && body?.retryable === true) {
+          console.log("⚠️ Service temporarily unavailable (from catch), retryable");
+          return { 
+            ok: false, 
+            retryable: true, 
+            message: 'Service temporarily unavailable. Retrying...', 
+            retryAfter: retryAfter 
+          };
         }
-        return { ok: false, retryable: false, message: body?.message || `HTTP ${error.response.status}` };
+        
+        if (status === 500 && body?.retryable === false) {
+          console.log("❌ Failed to initialize WhatsApp session (from catch), not retryable");
+          return { 
+            ok: false, 
+            retryable: false, 
+            message: 'Failed to initialize WhatsApp session. Please try again later.' 
+          };
+        }
+        
+        return { ok: false, retryable: false, message: body?.message || `HTTP ${status}` };
       }
+      
+      console.log("❌ Network error:", error.message);
       return { ok: false, retryable: false, message: error.message || 'Network error' };
     }
   },
