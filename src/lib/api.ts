@@ -56,11 +56,13 @@ export const whatsappApi = {
         return { ok: true, sessionData: body.data || { id: body.sessionId || sessionId || 'default', status: 'initializing' } };
       }
       
-      if (response.status === 503 && body?.retryable === true) {
-        console.log("⚠️ Service temporarily unavailable, retryable");
+      if (response.status === 503) {
+        // For 503, check if retryable is explicitly false, otherwise assume it's retryable
+        const isRetryable = body?.retryable !== false; // Default to true unless explicitly false
+        console.log(`⚠️ Service temporarily unavailable, retryable: ${isRetryable}`);
         return { 
           ok: false, 
-          retryable: true, 
+          retryable: isRetryable, 
           message: 'Service temporarily unavailable. Retrying...', 
           retryAfter: response.headers['retry-after'] 
         };
@@ -86,12 +88,15 @@ export const whatsappApi = {
         
         // Debug logging
         console.log(`Session creation error - Status: ${status}, Retryable: ${body?.retryable}, Retry-After: ${retryAfter}`);
+        console.log("Full error response:", error.response);
         
-        if (status === 503 && body?.retryable === true) {
-          console.log("⚠️ Service temporarily unavailable (from catch), retryable");
+        if (status === 503) {
+          // For 503, check if retryable is explicitly false, otherwise assume it's retryable
+          const isRetryable = body?.retryable !== false; // Default to true unless explicitly false
+          console.log(`⚠️ Service temporarily unavailable (from catch), retryable: ${isRetryable}`);
           return { 
             ok: false, 
-            retryable: true, 
+            retryable: isRetryable, 
             message: 'Service temporarily unavailable. Retrying...', 
             retryAfter: retryAfter 
           };
@@ -175,10 +180,16 @@ export const whatsappApi = {
   },
 };
 
-// Error interceptor
+// Error interceptor - but don't intercept 503 errors for session creation
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Don't intercept 503 errors for session creation - let them be handled by the specific function
+    if (error.response?.status === 503 && error.config?.url?.includes('/sessions')) {
+      console.log("503 error for session creation - letting specific handler deal with it");
+      return Promise.reject(error); // Re-throw the original error
+    }
+    
     const message =
       error.response?.data?.error || error.message || "Unknown error occurred";
     console.error("API Error:", message);
