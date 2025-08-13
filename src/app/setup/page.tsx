@@ -70,7 +70,7 @@ function SetupPageContent() {
         toast.success("Session created successfully", "You can now scan the QR code");
       } else if (response.retryable) {
         // 503 with retryable=true - show toast and schedule retry
-        toast.warning("Service temporarily unavailable. Retrying...", "Please wait while we prepare the browser");
+        toast.warning("Preparing browser, retrying...", "Please wait while we prepare the browser");
         
         const retryDelay = response.retryAfter 
           ? parseInt(response.retryAfter, 10) * 1000 
@@ -86,14 +86,15 @@ function SetupPageContent() {
         
         setRetryTimeout(timeoutId);
       } else {
-        // 500 with retryable=false or other errors - show error toast, no retry
-        toast.error("Failed to initialize WhatsApp session", response.message || "Please try again later");
+        // 500 or other errors - show exact server error message, no retry
+        toast.error("Session creation failed", response.message || "Please try again later");
         setError(response.message || "Failed to create session");
       }
     } catch (err) {
       console.log("❌ Unexpected error during session creation:", err);
-      toast.error("Network error", "Please check your connection and try again");
-      setError(err instanceof Error ? err.message : "Failed to create session");
+      const errorMessage = err instanceof Error ? err.message : "Failed to create session";
+      toast.error("Session creation failed", errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -182,12 +183,12 @@ function SetupPageContent() {
                     htmlFor="sessionId"
                     className="block text-sm font-medium text-github-fg-default mb-2"
                   >
-                    Session ID (Optional)
+                    Device Name (Optional)
                   </label>
                   <input
                     id="sessionId"
                     type="text"
-                    placeholder="e.g., my-whatsapp-session"
+                    placeholder="e.g., my-iphone or work-phone"
                     value={customSessionId}
                     onChange={(e) => setCustomSessionId(e.target.value)}
                     className="w-full px-4 py-3 bg-github-canvas-default border border-github-border-default rounded-lg focus:ring-2 focus:ring-[#1f6feb] focus:border-transparent text-github-fg-default placeholder-github-fg-muted transition-all duration-200"
@@ -195,7 +196,7 @@ function SetupPageContent() {
                   />
                   <p className="text-xs text-github-fg-muted mt-2 flex items-center gap-1">
                     <span>💡</span>
-                    Leave empty to generate a random ID
+                    Enter a name for your device or leave empty for auto-generated ID
                   </p>
                 </div>
 

@@ -45,11 +45,22 @@ export const whatsappApi = {
   // Session management
   async createSession(sessionId?: string): Promise<{ ok: boolean; retryable?: boolean; message?: string; sessionData?: WhatsAppSession; retryAfter?: string }> {
     try {
-      const response = await api.post("/sessions", { sessionId });
+      // Prepare payload with both sessionId and deviceName
+      const name = sessionId?.trim();
+      const payload = name ? { sessionId: name, deviceName: name } : {};
+      
+      console.log('[SESSION_API_REQUEST]', { payload, url: '/sessions' });
+      
+      const response = await api.post("/sessions", payload);
       const body = response.data || {};
 
       // Debug logging
-      console.log(`Session creation response - Status: ${response.status}, Retryable: ${body?.retryable}, Retry-After: ${response.headers['retry-after']}`);
+      console.log('[SESSION_API_RESPONSE]', { 
+        status: response.status, 
+        retryable: body?.retryable, 
+        retryAfter: response.headers['retry-after'],
+        body 
+      });
 
       if (response.status === 201) {
         console.log("✅ Session created successfully");
@@ -63,32 +74,37 @@ export const whatsappApi = {
         return { 
           ok: false, 
           retryable: isRetryable, 
-          message: 'Service temporarily unavailable. Retrying...', 
+          message: 'Preparing browser, retrying...', 
           retryAfter: response.headers['retry-after'] 
         };
       }
       
-      if (response.status === 500 && body?.retryable === false) {
-        console.log("❌ Failed to initialize WhatsApp session, not retryable");
+      if (response.status === 500) {
+        console.log("❌ Server error:", body);
         return { 
           ok: false, 
           retryable: false, 
-          message: 'Failed to initialize WhatsApp session. Please try again later.' 
+          message: body?.message || 'Server error occurred' 
         };
       }
       
       console.log(`❌ Unexpected response - Status: ${response.status}, Retryable: ${body?.retryable}`);
       return { ok: false, retryable: false, message: body?.message || `HTTP ${response.status}` };
     } catch (error: any) {
-      // Handle axios errors
+      // Handle axios errors with detailed logging
       if (error.response) {
-        const body = error.response.data || {};
-        const status = error.response.status;
-        const retryAfter = error.response.headers['retry-after'];
+        const res = error.response;
+        const body = res.data || {};
+        const status = res.status;
+        const retryAfter = res.headers['retry-after'];
         
-        // Debug logging
-        console.log(`Session creation error - Status: ${status}, Retryable: ${body?.retryable}, Retry-After: ${retryAfter}`);
-        console.log("Full error response:", error.response);
+        // Detailed error logging
+        console.error('[SESSION_API_ERROR]', { 
+          status: status, 
+          body: body,
+          retryAfter: retryAfter,
+          url: res.config?.url
+        });
         
         if (status === 503) {
           // For 503, check if retryable is explicitly false, otherwise assume it's retryable
@@ -97,21 +113,22 @@ export const whatsappApi = {
           return { 
             ok: false, 
             retryable: isRetryable, 
-            message: 'Service temporarily unavailable. Retrying...', 
+            message: 'Preparing browser, retrying...', 
             retryAfter: retryAfter 
           };
         }
         
-        if (status === 500 && body?.retryable === false) {
-          console.log("❌ Failed to initialize WhatsApp session (from catch), not retryable");
+        if (status === 500) {
+          console.log("❌ Server error (from catch):", body);
           return { 
             ok: false, 
             retryable: false, 
-            message: 'Failed to initialize WhatsApp session. Please try again later.' 
+            message: body?.message || 'Server error occurred' 
           };
         }
         
-        return { ok: false, retryable: false, message: body?.message || `HTTP ${status}` };
+        // Surface the exact server error message
+        throw new Error(body?.message || `HTTP ${status}`);
       }
       
       console.log("❌ Network error:", error.message);
